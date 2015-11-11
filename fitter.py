@@ -2,6 +2,8 @@ import csv
 import pandas as pd
 import collections as col
 import os
+import smtplib
+
 
 class Person:
     def __init__(self, info, keys, iloc):
@@ -17,8 +19,14 @@ class Person:
         #dataframe of name in temp
         self.name = temp.iloc[0]
         
+		#getting phone number
         temp = indiv_info['Number']
-        self.number = temp.iloc[0]
+        self.number = temp.iloc[0]	
+
+		#getting email
+        temp = indiv_info['Email']
+        self.email = temp.iloc[0]	
+		
 
         #then get times available
         self.avail['Monday'] = self.get_times(indiv_info, "Monday", keys)
@@ -97,9 +105,15 @@ def compare_times(person, other):
                 if other.avail[day][time] == 1:
                     person.add_buddy(other, day, time)
 
-def write_file(person):
+def write_file(person, email):	
+
     #so we have a person object
 	with open('people/%s.txt' % person.name, 'w') as file:
+		#first write the header of the email
+		file.write('From:%s\n' % email)
+		file.write('Subject: Your workout buddies result!\n')
+		file.write('\n')
+
 		for day in person.buddies:
 			file.write('%s:\n' %(day))
 			for time in person.buddies[day]:
@@ -107,10 +121,20 @@ def write_file(person):
 					file.write('%s:\n' % time)
 					for buddy in person.buddies[day][time]:
 						file.write('%s		Contact them at %s\n' %(buddy.name, buddy.number))
+		file.close()
 
 
 
+def send_email(person, sender, password):
+	server = smtplib.SMTP('smtp.gmail.com', 587)
+	server.starttls()
+	server.login(sender, password)
 
-
-
+	#assign message
+	text = open('people/%s.txt' % person.name, 'r')
+	msg = text.read()
+	text.close()
+	
+	server.sendmail(sender, person.email, msg)
+	server.quit()
 
