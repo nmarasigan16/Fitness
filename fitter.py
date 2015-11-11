@@ -10,7 +10,6 @@ class Person:
         days = ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday']
         
         self.avail = col.OrderedDict.fromkeys(days, [])
-        #print(self.avail)
         #get the info with the column of the person
         indiv_info = info.iloc[[iloc]]
         
@@ -37,7 +36,6 @@ class Person:
         self.avail['Saturday'] = self.get_times(indiv_info, "Saturday", keys)
         self.avail['Sunday'] = self.get_times(indiv_info, "Sunday", keys)
         
-        #print(self.avail)
         #then get type of workout
         self.workout = self.get_types(indiv_info)
         
@@ -74,9 +72,6 @@ class Person:
         return types
     
     def add_buddy(self, otherperson, day, time):
-        #self.buddies[day][time].add(othername)
-        #print(type(self.buddies[day][time]))
-        #print(type(self.buddies[day]))
         self.buddies[day][time].add(otherperson)
 
 def compare(people, person):
