@@ -4,28 +4,13 @@ import collections as col
 import os
 import smtplib
 
-'''
-class Person:
-input:
-	Pandas Dataframe info
-	List keys
-	int iloc
 
-data stored in Person:
-	email - an email address
-	number - a phone number
-	name - name of the person
-	avail - dictionary of times this person is available
-	buddies - dictionary of person objects whom they match availability with
-
-output:
-	None
-'''
 class Person:
     def __init__(self, info, keys, iloc):
         days = ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday']
         
         self.avail = col.OrderedDict.fromkeys(days, [])
+        #print(self.avail)
         #get the info with the column of the person
         indiv_info = info.iloc[[iloc]]
         
@@ -52,6 +37,7 @@ class Person:
         self.avail['Saturday'] = self.get_times(indiv_info, "Saturday", keys)
         self.avail['Sunday'] = self.get_times(indiv_info, "Sunday", keys)
         
+        #print(self.avail)
         #then get type of workout
         self.workout = self.get_types(indiv_info)
         
@@ -88,16 +74,11 @@ class Person:
         return types
     
     def add_buddy(self, otherperson, day, time):
+        #self.buddies[day][time].add(othername)
+        #print(type(self.buddies[day][time]))
+        #print(type(self.buddies[day]))
         self.buddies[day][time].add(otherperson)
-'''
-Function compare
-input: 
-	Dictionary people
-	Person object person
 
-output
-	None
-'''
 def compare(people, person):
     for other in people:
         if person.name != other.name:
@@ -107,28 +88,13 @@ def compare(people, person):
                 #then match by type of workout
                 if(compare_types(person, other)):
                     compare_times(person, other)
-'''
-Function compare_types
-input:
-	Person object person
-	Person object other
-output:
-	boolean
-'''
+
 def compare_types(person, other):
     for types in person.workout:
         for othertypes in other.workout:
             if othertypes == types:
                 return True
-'''
-Function compare_times
-input:
-	Person object person
-	Person object other
 
-output:
-	None
-'''
 def compare_times(person, other):
     #this is the most complex method
     #first check the day
@@ -138,15 +104,7 @@ def compare_times(person, other):
             if person.avail[day][time] == 1:
                 if other.avail[day][time] == 1:
                     person.add_buddy(other, day, time)
-'''
-Function write_file
-input:
-	Person object person
-	String email - email from which the email will be sent
 
-output:
-	Writes to a file of the format [person.name].txt
-'''
 def write_file(person, email):	
 
     #so we have a person object
@@ -156,32 +114,25 @@ def write_file(person, email):
 		file.write('Subject: Your workout buddies result!\n')
 		file.write('\n')
 
+
 		for day in person.buddies:
+			buddies = False
 			file.write('%s:\n' %(day))
 			for time in person.buddies[day]:
 				if(len(person.buddies[day][time]) != 0):
-					file.write('%s:\n' % time)
+					buddies = True
+					file.write('	%s:\n' % time)
+					file.write('\n')
 					for buddy in person.buddies[day][time]:
-						file.write('%s		Contact them at %s\n' %(buddy.name, buddy.number))
+						file.write('		%s		Contact them at %s\n' %(buddy.name, buddy.number))
 						file.write('\n')
-
-		file.write('\n')
-		file.write('\n')
-		file.write('This email was automatically generated.  If you have any issues, please contact the developer at nmarasigan16@gmail.com')
+			if not buddies:
+				file.write('no workout buddies found for this day :( \n')
+				file.write('\n')
 		file.close()
 
 
-'''
-Function send_email
-input:
-	Person object person
-	string sender - senders email address
-	string password - password for senders email address
-output:
-	sends an email to the person's email
-Note:
-	this only works with gmail addresses as sender
-'''
+
 def send_email(person, sender, password):
 	server = smtplib.SMTP('smtp.gmail.com', 587)
 	server.starttls()
